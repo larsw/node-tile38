@@ -1,35 +1,33 @@
 {
-  "name": "tile38",
+  "name": "tile38-ts",
   "version": "0.7.0",
-  "description": "Node library for accessing Tile38 service",
+  "description": "Node library for accessing Tile38 service written in TypeScript",
   "main": "./dist/tile38.js",
   "scripts": {
     "test": "mocha",
-    "compile": "node_modules/babel-cli/bin/babel.js src --out-dir dist",
+    "compile": "",
     "prepublish": "npm run compile"
   },
-  "author": "Peter Hulst <peter@hollice.com>",
+  "authors": [
+    "Peter Hulst <peter@hollice.com>",
+    "Lars Wilhelmsen <lars@sral.org>"
+  ],
   "license": "ISC",
   "dependencies": {
-    "mocha": "^6.2.0",
-    "redis": "^2.8.0",
-    "redis-parser": "^3.0.0",
-    "lodash": ">=4.17.13",
-    "braces": ">=2.3.1"
-  },
-  "babel": {
-    "presets": [
-      "env"
-    ]
+    "braces": "3.0.2",
+    "lodash": "^4.17.20",
+    "mocha": "^8.1.1",
+    "redis": "^3.0.2",
+    "redis-parser": "^3.0.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-preset-env": "^1.7.0",
-    "chai": "^4.2.0"
+    "@types/node": "^14.6.0",
+    "@types/redis": "^2.8.26",
+    "chai": "^4.2.0",
+    "typescript": "^4.0.2"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/phulst/node-tile38.git"
+    "url": "git://github.com/larsw/node-tile38-ts.git"
   }
 }

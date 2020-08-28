@@ -1,16 +1,26 @@
-'use strict';
+import net from 'net'
+import Parser from 'redis-parser'
 
-const net = require('net');
-const Parser = require("redis-parser");
+interface Logger  {
+    info(...data: any[]): void;
+    log(...data: any[]): void;    
+    error(...data: any[]): void;
+    warn(...data: any[]): void;
+}
 
 /**
  * establishes an open socket to the Tile38 server for live geofences
  */
-class LiveGeofence {
+export class LiveGeofence {
+
+    private debug : boolean
+    private logger : Logger
+    private socket! : net.Socket
+    private onCloseCb!: (has_error:boolean) => boolean;
 
     constructor(debug = false, logger = console) {
-        this.debug = debug;
-        this.logger = logger;
+        this.debug = debug
+        this.logger = logger
     }
 
     /**
@@ -22,7 +32,7 @@ class LiveGeofence {
      * @param command Command string to send to Tile38
      * @param callback callback method with parameters (err, results)
      */
-    open(host, port, password, command, callback) {
+    open(host: string, port: number, password: string, command: string, callback: (err:any, results:any) => void) {
         const socket = new net.Socket();
         this.socket = socket;
         socket.connect(port, host, () => {
@@ -35,12 +45,11 @@ class LiveGeofence {
 
         let self = this;
         socket.on('close', () => {
-            //this.logger.log("Socket is being closed!");
-            if (this.onCloseCb) this.onCloseCb();
+            if (this.onCloseCb) this.onCloseCb(false);
         });
 
         const parser = new Parser({
-            returnReply: function(reply) {
+            returnReply: (reply: string) => {
                 if (self.debug) self.logger.log(reply);
                 if (reply == 'OK') return; // we're not invoking a callback for the 'OK' response that comes first
 
@@ -57,26 +66,25 @@ class LiveGeofence {
                 }
                 callback(null, response);
             },
-            returnError: function(err) {
+            returnError: (err: string) => {
                 self.logger.error('live socket error: ' + err);
                 callback(err, null);
             },
-            returnFatalError: function(err) {
+            returnFatalError: (err: string) => {
                 self.logger.error('fatal live socket error: ' + err);
                 self.socket.destroy();
                 callback(err, null);
             }
         });
 
-        socket.on('data', buffer => {
-            //self.logger.log(JSON.stringify(buffer.toString()));
+        socket.on('data', (buffer: Buffer) => {
             parser.execute(buffer);
         });
        return this;
     }
 
     // allows clients to register an 'on closed' handler to be notified if the socket unexpectedly gets closed
-    onClose(callback) {
+    onClose(callback: (boolean: any) => boolean) {
         this.onCloseCb = callback;
     }
 
@@ -86,4 +94,3 @@ class LiveGeofence {
     }
 }
 
-module.exports = LiveGeofence;
